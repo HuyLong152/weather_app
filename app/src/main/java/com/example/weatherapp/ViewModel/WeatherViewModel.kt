@@ -9,4 +9,6 @@ class WeatherViewModel(val repository:WeatherRepository):ViewModel() {
     constructor() : this(WeatherRepository(ApiClient().getClient().create(ApiServices::class.java)))
     fun loadCurrentWeather(lat:Double,long:Double,unit:String) =
         repository.getCurrentWeather(lat,long,unit)
+    fun loadCurrentForecast(lat:Double,long:Double,unit:String) =
+        repository.getCurrentForecast(lat,long,unit)
 }

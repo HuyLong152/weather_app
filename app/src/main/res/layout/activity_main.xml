@@ -238,4 +238,33 @@
 
     </LinearLayout>
 
+    <eightbitlab.com.blurview.BlurView
+        android:layout_width="match_parent"
+        android:id="@+id/blurView"
+        android:layout_height="143dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:visibility="gone"
+        app:blurOverlayColor="#10ffffff"
+        android:background="@drawable/forecast_bg"
+        app:layout_constraintBottom_toBottomOf="@+id/bgImg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/forecastView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"></androidx.recyclerview.widget.RecyclerView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </eightbitlab.com.blurview.BlurView>
 </androidx.constraintlayout.widget.ConstraintLayout>
