@@ -5,7 +5,8 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.WeatherApp" parent="Base.Theme.WeatherApp" >
-        <item name="android:windowTranslucentNavigation">true</item> // đổi màu thanh menu thành trong suốt
+    <style name="Theme.WeatherApp" parent="Base.Theme.WeatherApp">
+        <item name="android:windowTranslucentNavigation">true</item>
+        // đổi màu thanh menu thành trong suốt
     </style>
 </resources>

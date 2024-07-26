@@ -1,12 +1,15 @@
 package com.example.weatherapp.Views
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.SurfaceControl.Transaction
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -30,9 +33,9 @@ import javax.security.auth.callback.Callback
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    private  val weatherViewModel : WeatherViewModel by viewModels()
-    private val calendar by lazy {Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"))}
-    private  val forecastAdapter by lazy { ForecastAdapter() }
+    private val weatherViewModel: WeatherViewModel by viewModels()
+    private val calendar by lazy { Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")) }
+    private val forecastAdapter by lazy { ForecastAdapter() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -41,39 +44,42 @@ class MainActivity : AppCompatActivity() {
             addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             statusBarColor = Color.TRANSPARENT
         }
-
         //current temp
         binding.apply {
             var lat = 51.50
             var lon = -0.12
             var name = "London"
-            citytxt.text  = name
+            citytxt.text = name
             progressBar.visibility = View.VISIBLE
-            weatherViewModel.loadCurrentWeather(lat,lon,"metric").enqueue(object :
+            weatherViewModel.loadCurrentWeather(lat, lon, "metric").enqueue(object :
                 retrofit2.Callback<CurrentResponseApi> {
                 @SuppressLint("SuspiciousIndentation")
                 override fun onResponse(
                     p0: Call<CurrentResponseApi>,
                     p1: Response<CurrentResponseApi>,
                 ) {
-                    if(p1.isSuccessful){
+                    if (p1.isSuccessful) {
                         val data = p1.body()
                         progressBar.visibility = View.GONE
                         detailLayout.visibility = View.VISIBLE
                         data?.let {
                             statusTxt.text = it.weather?.get(0)?.main ?: "-"
-                            windTxt.text = it.wind?.speed.let{Math.round(it!!).toString() } + "Km"
-                            humidityTxt.text = it.main?.humidity.toString() + "%"
-                            currentTempTxt.text = it.main?.temp.let{Math.round(it!!).toString()} + "°"
-                            maxTempTxt.text = it.main?.tempMax.let{Math.round(it!!).toString()} + "°"
-                            minTempTxt.text = it.main?.tempMin.let{Math.round(it!!).toString()} + "°"
-                        val drawable = if(isNightNow()) R.drawable.night_bg else
-                            setDynamicallyWallpaper(
-                                it.weather?.get(0)?.icon?:"-"
-                            )
+                            windTxt.text =
+                                it.wind?.speed.let { Math.round(it!!).toString() } + " Km"
+                            humidityTxt.text = it.main?.humidity.toString() + " %"
+                            currentTempTxt.text =
+                                it.main?.temp.let { Math.round(it!!).toString() } + " °"
+                            maxTempTxt.text =
+                                it.main?.tempMax.let { Math.round(it!!).toString() } + " °"
+                            minTempTxt.text =
+                                it.main?.tempMin.let { Math.round(it!!).toString() } + " °"
+                            val drawable = if (isNightNow()) R.drawable.night_bg else
+                                setDynamicallyWallpaper(
+                                    it.weather?.get(0)?.icon ?: "-"
+                                )
 //                        }
                             bgImg.setImageResource(drawable)
-                            setEffectRainSnow(it.weather?.get(0)?.icon?:"-")
+                            setEffectRainSnow(it.weather?.get(0)?.icon ?: "-")
                         }
                     }
                 }
@@ -88,95 +94,131 @@ class MainActivity : AppCompatActivity() {
             val decorView = window.decorView
             val rootView = (decorView.findViewById(android.R.id.content) as ViewGroup?)
             val windowBackground = decorView.background
-            rootView?.let{
-                blurView.setupWith(it,RenderScriptBlur(this@MainActivity))
+            rootView?.let {
+                blurView.setupWith(it, RenderScriptBlur(this@MainActivity))
                     .setFrameClearDrawable(windowBackground)
                     .setBlurRadius(radius)
                 blurView.outlineProvider = ViewOutlineProvider.BACKGROUND
                 blurView.clipToOutline = true
             }
             //forecast temp
-            weatherViewModel.loadCurrentForecast(lat,lon,"metric").enqueue(object : retrofit2.Callback<ForecastResponceApi>{
-                override fun onResponse(
-                    p0: Call<ForecastResponceApi>,
-                    p1: Response<ForecastResponceApi>,
-                ) {
-                    if (p1.isSuccessful) {
-                        val data = p1.body()
-                        blurView.visibility = View.VISIBLE
-                        data?.let {
-                            forecastView.adapter = forecastAdapter.apply {
-                                differ.submitList(it.list)
+            weatherViewModel.loadCurrentForecast(lat, lon, "metric")
+                .enqueue(object : retrofit2.Callback<ForecastResponceApi> {
+                    override fun onResponse(
+                        p0: Call<ForecastResponceApi>,
+                        p1: Response<ForecastResponceApi>,
+                    ) {
+                        if (p1.isSuccessful) {
+                            val data = p1.body()
+                            blurView.visibility = View.VISIBLE
+                            data?.let {
+                                forecastView.adapter = forecastAdapter.apply {
+                                    differ.submitList(it.list)
+                                }
+                                forecastView.layoutManager = LinearLayoutManager(
+                                    this@MainActivity,
+                                    LinearLayoutManager.HORIZONTAL,
+                                    false
+                                )
                             }
-                            forecastView.layoutManager = LinearLayoutManager(this@MainActivity,
-                                LinearLayoutManager.HORIZONTAL ,
-                                false)
                         }
                     }
-                }
-                override fun onFailure(p0: Call<ForecastResponceApi>, p1: Throwable) {
-                    TODO("Not yet implemented")
-                }
 
-            })
+                    override fun onFailure(p0: Call<ForecastResponceApi>, p1: Throwable) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+//            val initialTransactionX = -blurView.width.toFloat()
+//            blurView.translationX = initialTransactionX
+//            val animation =
+//                ObjectAnimator.ofFloat(blurView, "translationX", initialTransactionX, 1f)
+//            animation.duration = 5000
+//            addCity.setOnClickListener() {
+//                if (blurView.translationX == 0f) {
+//                    animation.start()
+//                } else {
+//                    animation.reverse()
+//                }
+//            }
         }
+    val abc = 10
+        val abc1= 100
 
     }
 
 
-
-    private  fun isNightNow():Boolean{
+    private fun isNightNow(): Boolean {
         return calendar.get(Calendar.HOUR_OF_DAY) >= 18
     }
-    private fun setDynamicallyWallpaper(icon:String):Int{
-        return when(icon.dropLast(1)){
-            "01"->{
+
+    private fun setDynamicallyWallpaper(icon: String): Int {
+        return when (icon.dropLast(1)) {
+            "01" -> {
                 initWeatherView(PrecipType.CLEAR)
                 R.drawable.snow_bg
             }
-            "02","03","04"->{
+
+            "02", "03", "04" -> {
                 initWeatherView(PrecipType.CLEAR)
                 R.drawable.cloudy_bg
             }
-            "09","10","11"->{
+
+            "09", "10", "11" -> {
                 initWeatherView(PrecipType.RAIN)
                 R.drawable.rainy_bg
             }
-            "13"->{
+
+            "13" -> {
                 initWeatherView(PrecipType.SNOW)
                 R.drawable.snow_bg
             }
-            "50"->{
+
+            "50" -> {
                 initWeatherView(PrecipType.CLEAR)
                 R.drawable.haze_bg
             }
+
             else -> 0
         }
     }
-    private fun setEffectRainSnow(icon:String){
-         when(icon.dropLast(1)){
-            "01"->{
+
+    private fun setEffectRainSnow(icon: String) {
+        when (icon.dropLast(1)) {
+            "01" -> {
                 initWeatherView(PrecipType.CLEAR)
             }
-            "02","03","04"->{
+
+            "02", "03", "04" -> {
                 initWeatherView(PrecipType.CLEAR)
             }
-            "09","10","11"->{
+
+            "09", "10", "11" -> {
                 initWeatherView(PrecipType.RAIN)
             }
-            "13"->{
+
+            "13" -> {
                 initWeatherView(PrecipType.SNOW)
             }
-            "50"->{
+
+            "50" -> {
                 initWeatherView(PrecipType.CLEAR)
             }
         }
     }
-    private fun initWeatherView(type:PrecipType){
-    binding.weatherView.apply {
-        setWeatherData(type)
-        angle= -20
-        emissionRate-100.0f
+
+    private fun initWeatherView(type: PrecipType) {
+        binding.weatherView.apply {
+            setWeatherData(type)
+            angle = -20
+            emissionRate - 100.0f
+            Log.println(Log.ASSERT, "test", "test")
+
+        }
+
     }
+
+    fun testDebug(a: Int, b: Int): Int {
+        return a + b
     }
 }

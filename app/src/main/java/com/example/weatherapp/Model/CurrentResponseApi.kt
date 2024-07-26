@@ -31,18 +31,18 @@ data class CurrentResponseApi(
     @SerializedName("weather")
     val weather: List<Weather?>?,
     @SerializedName("wind")
-    val wind: Wind?
+    val wind: Wind?,
 ) {
     data class Clouds(
         @SerializedName("all")
-        val all: Int?
+        val all: Int?,
     )
 
     data class Coord(
         @SerializedName("lat")
         val lat: Double?,
         @SerializedName("lon")
-        val lon: Double?
+        val lon: Double?,
     )
 
     data class Main(
@@ -61,12 +61,12 @@ data class CurrentResponseApi(
         @SerializedName("temp_max")
         val tempMax: Double?,
         @SerializedName("temp_min")
-        val tempMin: Double?
+        val tempMin: Double?,
     )
 
     data class Rain(
         @SerializedName("1h")
-        val h: Double?
+        val h: Double?,
     )
 
     data class Sys(
@@ -79,7 +79,7 @@ data class CurrentResponseApi(
         @SerializedName("sunset")
         val sunset: Int?,
         @SerializedName("type")
-        val type: Int?
+        val type: Int?,
     )
 
     data class Weather(
@@ -90,7 +90,7 @@ data class CurrentResponseApi(
         @SerializedName("id")
         val id: Int?,
         @SerializedName("main")
-        val main: String?
+        val main: String?,
     )
 
     data class Wind(
@@ -99,6 +99,6 @@ data class CurrentResponseApi(
         @SerializedName("gust")
         val gust: Double?,
         @SerializedName("speed")
-        val speed: Double?
+        val speed: Double?,
     )
 }

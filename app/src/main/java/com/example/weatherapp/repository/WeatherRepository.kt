@@ -8,4 +8,4 @@ class WeatherRepository(val api:ApiServices) {
 
     fun getCurrentForecast(lat :Double, long:Double,unit:String) =
         api.getCurrentForecast(lat,long,unit,"0dd1850aedd50b903225e54f4fba1284")
-}
+ }
